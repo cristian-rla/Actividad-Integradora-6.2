@@ -1,10 +1,10 @@
 -module(taxi).
 -export([registra_taxi/2, elimina_taxi/1, consultar_estado/1, servicio_iniciado/1, servicio_terminado/1, taxi/3]).
 
-central()->
-    'nodoCentral@LAPTOP-ULGC39GQ'.
+central() ->  % Se le ha de llamar al nodo de central nodoCentral
+    {ok, Host} = inet:gethostname(),
+    list_to_atom("nodoCentral@" ++ Host).
 
-% Esta función solo se manda a llamar en funciones con previa verificación de la existencia de la central
 verifica_previo_registro(NombreTaxi)->
     {central, central()} ! {lista_taxis, self()},
     receive
@@ -15,7 +15,6 @@ verifica_previo_registro(NombreTaxi)->
     end
 .
 
-% Se confía en que el registro del taxi se haga con una id que ya tenga un sistema de nomenclatura especifico, porque se recibe como parámetro.
 registra_taxi(TaxiId, UbicacionInicial)->
 
     case verifica_previo_registro(TaxiId) of
@@ -83,7 +82,7 @@ consultar_estado(TaxiId) when is_atom(TaxiId)->
     end
 .
 
-servicio_iniciado(TaxiId) -> % La segunda manera de asignar un viaje a un taxi. Aunque usualmente se asigna al asignarle tal taxi al viajero desde la central.
+servicio_iniciado(TaxiId) -> 
     case encuentra_taxi(TaxiId) of 
         false ->
             io:format("El taxi no se encuentra registrado~n");
@@ -113,8 +112,6 @@ servicio_terminado(TaxiId) ->
     end
 .   
 
-% Creo que una buena alternativa para aceptar atomos es hacer una lista de tuplas que tengan ubicaciones aceptadas. Esto también sirve para el 
-% Hay una diferencia entre activo y disponible/ocupado. La combinación activo y ocupado es posible, inactivo es para los taxis que en algun momento estuvieron en servicio. Pero eso no se guarda en los taxis, porque un taxi inactivo implica que el proceso ha cerrado. 
 taxi(Estado, Ubicacion, ViajePid) ->
     case ViajePid of 
         undefined ->

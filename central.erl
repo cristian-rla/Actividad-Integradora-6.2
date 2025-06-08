@@ -10,7 +10,10 @@
 % Hasta que se borren quitarlos de la lista? 
 % Falta el caso en el que el taxista se borre cuando iba por un viajero, hay que asignarle otro taxista
 
-server_central()->'nodoCentral@LAPTOP-ULGC39GQ'.
+server_central() ->  % Se le ha de llamar al nodo de central nodoCentral
+    {ok, Host} = inet:gethostname(),
+    list_to_atom("nodoCentral@" ++ Host).
+
 abre_central({X,Y})->
     case whereis(central) of
         undefined ->
